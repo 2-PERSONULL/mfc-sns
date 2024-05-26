@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
+import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
 import com.mfc.sns.posting.dto.resp.PostDto;
@@ -68,5 +69,11 @@ public class PostServiceImpl implements PostService {
 						.map(PostDto::new)
 						.toList())
 				.build();
+	}
+
+	@Override
+	public void deletePosts(String uuid, DeletePostReqDto dto) {
+		tagRepository.deleteTags(dto.getPosts());
+		postRepository.deletePosts(dto.getPosts());
 	}
 }
