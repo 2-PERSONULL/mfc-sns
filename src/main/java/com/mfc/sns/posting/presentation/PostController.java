@@ -18,9 +18,11 @@ import com.mfc.sns.posting.application.PostService;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.vo.req.UpdatePostReqVo;
 import com.mfc.sns.posting.vo.resp.PostDetailRespVo;
+import com.mfc.sns.posting.vo.resp.PostListRespVo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -46,7 +48,14 @@ public class PostController {
 	@Operation(summary = "포스팅 상세 정보 조회 API", description = "각 포스팅 상세 보기")
 	public BaseResponse<PostDetailRespVo> getPost(@PathVariable Long postId) {
 		return new BaseResponse<>(modelMapper.map(
-				postService.getPost(postId), PostDetailRespVo.class));
+				postService.getPostDetail(postId), PostDetailRespVo.class));
+	}
+
+	@GetMapping("/list/{partnerId}")
+	@Operation(summary = "파트너 별 포스팅 목록 조회 API", description = "파트너 별 포스팅 목록 (무한 스크롤?)")
+	public BaseResponse<PostListRespVo> getPostList(@PathVariable String partnerId) {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getPostList(partnerId), PostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {

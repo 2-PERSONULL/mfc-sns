@@ -1,4 +1,4 @@
-package com.mfc.sns.posting.infrasturctual;
+package com.mfc.sns.posting.infrastructure;
 
 import java.util.List;
 
