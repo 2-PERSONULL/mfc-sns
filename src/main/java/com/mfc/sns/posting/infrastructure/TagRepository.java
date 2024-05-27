@@ -12,7 +12,11 @@ import com.mfc.sns.posting.domain.Tag;
 public interface TagRepository extends JpaRepository<Tag, Long> {
 	List<Tag> findByPostId(Long postId);
 
-	@Modifying(clearAutomatically = true)
+	@Modifying(flushAutomatically = true)
 	@Query("delete from Tag t where t.post.id in :posts")
 	void deleteTags(@Param("posts") List<Long> posts);
+
+	@Modifying(flushAutomatically = true)
+	@Query("delete from Tag t where t.post.id = :postId")
+	void deleteTagsByPostId(@Param("postId") Long postId);
 }

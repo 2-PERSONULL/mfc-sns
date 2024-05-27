@@ -10,4 +10,5 @@ public interface PostService {
 	PostDetailRespDto getPostDetail(Long postId);
 	PostListRespDto getPostList(String partnerId);
 	void deletePosts(String uuid, DeletePostReqDto dto);
+	void updatePost(Long postId, String partnerId, UpdatePostReqDto dto);
 }

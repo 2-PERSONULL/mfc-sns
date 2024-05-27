@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -67,6 +68,16 @@ public class PostController {
 			@RequestBody DeletePostReqVo vo) {
 		checkUuid(uuid);
 		postService.deletePosts(uuid, modelMapper.map(vo, DeletePostReqDto.class));
+		return new BaseResponse<>();
+	}
+
+	@PutMapping("/{postId}")
+	@Operation(summary = "포스팅 수정 API", description = "포스팅 수정")
+	public BaseResponse<Void> updatePost(@PathVariable Long postId,
+			@RequestHeader(name = "UUID", defaultValue = "") String partnerId,
+			@RequestBody UpdatePostReqVo vo) {
+		checkUuid(partnerId);
+		postService.updatePost(postId, partnerId, modelMapper.map(vo, UpdatePostReqDto.class));
 		return new BaseResponse<>();
 	}
 

@@ -2,6 +2,8 @@ package com.mfc.sns.posting.application;
 
 import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,11 +37,7 @@ public class PostServiceImpl implements PostService {
 				.bookmarkCnt(0)
 				.build());
 
-		dto.getTags().stream()
-				.forEach(tag -> tagRepository.save(Tag.builder()
-								.value(tag)
-								.post(post)
-								.build()));
+		insertTags(dto.getTags(), post);
 	}
 
 	@Override
@@ -75,5 +73,30 @@ public class PostServiceImpl implements PostService {
 	public void deletePosts(String uuid, DeletePostReqDto dto) {
 		tagRepository.deleteTags(dto.getPosts());
 		postRepository.deletePosts(dto.getPosts());
+	}
+
+	@Override
+	public void updatePost(Long postId, String partnerId, UpdatePostReqDto dto) {
+		Post post = postRepository.findByIdAndPartnerId(postId, partnerId)
+				.orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+		tagRepository.deleteTagsByPostId(postId);
+		postRepository.save(Post.builder()
+				.id(postId)
+				.imageUrl(dto.getImageUrl())
+				.alt(post.getAlt())
+				.bookmarkCnt(post.getBookmarkCnt())
+				.build()
+		);
+
+		insertTags(dto.getTags(), post);
+	}
+
+	private void insertTags(List<String> tags, Post post) {
+		tags
+				.forEach(tag -> tagRepository.save(Tag.builder()
+						.value(tag)
+						.post(post)
+						.build()));
 	}
 }
