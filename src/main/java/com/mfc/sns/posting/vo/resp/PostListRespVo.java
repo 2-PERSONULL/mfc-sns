@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class PostListRespVo {
 	private List<PostVo> posts;
+	private boolean isLast;
 }

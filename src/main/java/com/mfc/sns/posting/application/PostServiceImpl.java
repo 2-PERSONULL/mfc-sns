@@ -4,6 +4,8 @@ import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,12 +60,14 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PostListRespDto getPostList(String partnerId) {
+	public PostListRespDto getPostList(String partnerId, Pageable page) {
+		Page<Post> posts = postRepository.findByPartnerId(partnerId, page);
+
 		return PostListRespDto.builder()
-				.posts(postRepository.findByPartnerId(partnerId)
-						.stream()
+				.posts(posts.stream()
 						.map(PostDto::new)
 						.toList())
+				.isLast(posts.isLast())
 				.build();
 	}
 
