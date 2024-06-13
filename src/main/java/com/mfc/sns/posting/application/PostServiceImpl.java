@@ -34,7 +34,6 @@ public class PostServiceImpl implements PostService {
 				.imageUrl(dto.getImageUrl())
 				.partnerId(uuid)
 				.alt(uuid + "post")
-				.bookmarkCnt(0)
 				.build());
 
 		insertTags(dto.getTags(), post);
@@ -50,7 +49,6 @@ public class PostServiceImpl implements PostService {
 				.postId(postId)
 				.imageUrl(post.getImageUrl())
 				.alt(post.getAlt())
-				.bookmarkCnt(post.getBookmarkCnt())
 				.tags(tagRepository.findByPostId(postId)
 						.stream()
 						.map(TagDto::new)
@@ -85,7 +83,6 @@ public class PostServiceImpl implements PostService {
 				.id(postId)
 				.imageUrl(dto.getImageUrl())
 				.alt(post.getAlt())
-				.bookmarkCnt(post.getBookmarkCnt())
 				.build()
 		);
 

@@ -23,14 +23,12 @@ public class Post extends BaseEntity {
 	private String partnerId;
 	private String imageUrl;
 	private String alt;
-	private Integer bookmarkCnt;
 
 	@Builder
-	public Post(Long id, String partnerId, String imageUrl, String alt, Integer bookmarkCnt) {
+	public Post(Long id, String partnerId, String imageUrl, String alt) {
 		this.id = id;
 		this.partnerId = partnerId;
 		this.imageUrl = imageUrl;
 		this.alt = alt;
-		this.bookmarkCnt = bookmarkCnt;
 	}
 }
