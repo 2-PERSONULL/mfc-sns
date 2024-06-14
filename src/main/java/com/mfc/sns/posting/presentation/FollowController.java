@@ -5,6 +5,7 @@ import static com.mfc.sns.common.response.BaseResponseStatus.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -46,6 +47,15 @@ public class FollowController {
 			@RequestBody FollowReqVo vo) {
 		followService.deleteFollow(userId, modelMapper.map(vo, FollowReqDto.class));
 		return new BaseResponse<>();
+	}
+
+	@GetMapping("/list")
+	@Operation(summary = "특정 파트너 팔로우 여부 조회 API", description = "특정 파트너 팔로우 여부")
+	public BaseResponse<Boolean> isFollowed(
+			@RequestHeader(value = "UUID", defaultValue = "") String userId,
+			@RequestHeader(value = "partnerId", defaultValue = "") String partnerId) {
+		checkUuid(userId);
+		return new BaseResponse<>(followService.isFollowed(userId, partnerId));
 	}
 
 	private void checkUuid(String uuid) {
