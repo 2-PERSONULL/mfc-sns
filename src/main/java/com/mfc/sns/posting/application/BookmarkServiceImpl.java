@@ -38,11 +38,13 @@ public class BookmarkServiceImpl implements BookmarkService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public boolean isBookmarked(Long postId, String userId) {
 		return bookmarkRepository.findByPostIdAndUserId(postId, userId).isPresent();
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public PostListRespDto getBookmarkList(String userId, Pageable page) {
 		Slice<PostDto> posts = bookmarkRepository.getPostList(userId, page);
 
