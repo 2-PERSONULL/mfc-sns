@@ -14,8 +14,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class BookmarkServiceImpl implements BookmarkService {
 	private final BookmarkRepository bookmarkRepository;
-	private final PostRepository postRepository;
-
 	@Override
 	public void createBookmark(Long postId, String userId) {
 		bookmarkRepository.save(Bookmark.builder()
@@ -27,5 +25,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 	@Override
 	public void deleteBookmark(Long postId, String userId) {
 		bookmarkRepository.deleteByPostId(postId, userId);
+	}
+
+	@Override
+	public boolean isBookmarked(Long postId, String userId) {
+		return bookmarkRepository.findByPostIdAndUserId(postId, userId).isPresent();
 	}
 }
