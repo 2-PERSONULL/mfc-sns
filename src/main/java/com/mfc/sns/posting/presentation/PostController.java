@@ -29,6 +29,7 @@ import com.mfc.sns.posting.vo.resp.PostListRespVo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -61,7 +62,7 @@ public class PostController {
 	@Operation(summary = "파트너 별 포스팅 목록 조회 API", description = "파트너 별 포스팅 목록 (sort는 지우면 됨)")
 	public BaseResponse<PostListRespVo> getPostList(
 			@RequestHeader(value = "UUID", defaultValue = "") String partnerId,
-			@PageableDefault(size = 3, page = 0, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
+			@PageableDefault(size = 3, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
 		return new BaseResponse<>(modelMapper.map(
 				postService.getPostList(partnerId, page), PostListRespVo.class));
 	}
@@ -84,6 +85,14 @@ public class PostController {
 		checkUuid(partnerId);
 		postService.updatePost(postId, partnerId, modelMapper.map(vo, UpdatePostReqDto.class));
 		return new BaseResponse<>();
+	}
+
+	@GetMapping("/explore")
+	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "탐색 탭 포스팅 목록 조회 (정렬 및 필터링 구현 아직 안함..)")
+	public  BaseResponse<PostListRespVo> getExploreList(
+			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getExploreList(page), PostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {

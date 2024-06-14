@@ -93,6 +93,19 @@ public class PostServiceImpl implements PostService {
 		insertTags(dto.getTags(), post);
 	}
 
+	@Override
+	@Transactional(readOnly = true)
+	public PostListRespDto getExploreList(Pageable page) {
+		Page<Post> posts = postRepository.findAll(page);
+
+		return PostListRespDto.builder()
+				.posts(posts.stream()
+						.map(PostDto::new)
+						.toList())
+				.isLast(posts.isLast())
+				.build();
+	}
+
 	private void insertTags(List<String> tags, Post post) {
 		tags
 				.forEach(tag -> tagRepository.save(Tag.builder()

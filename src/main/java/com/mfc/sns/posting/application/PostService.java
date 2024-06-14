@@ -13,4 +13,5 @@ public interface PostService {
 	PostListRespDto getPostList(String partnerId, Pageable page);
 	void deletePosts(String uuid, DeletePostReqDto dto);
 	void updatePost(Long postId, String partnerId, UpdatePostReqDto dto);
+	PostListRespDto getExploreList(Pageable page);
 }
