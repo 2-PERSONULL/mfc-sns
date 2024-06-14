@@ -3,6 +3,9 @@ package com.mfc.sns.posting.presentation;
 import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +20,7 @@ import com.mfc.sns.common.response.BaseResponse;
 import com.mfc.sns.posting.application.FollowService;
 import com.mfc.sns.posting.dto.req.FollowReqDto;
 import com.mfc.sns.posting.vo.req.FollowReqVo;
+import com.mfc.sns.posting.vo.resp.FollowListRespVo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -49,13 +53,23 @@ public class FollowController {
 		return new BaseResponse<>();
 	}
 
-	@GetMapping("/list")
+	@GetMapping
 	@Operation(summary = "특정 파트너 팔로우 여부 조회 API", description = "특정 파트너 팔로우 여부")
 	public BaseResponse<Boolean> isFollowed(
 			@RequestHeader(value = "UUID", defaultValue = "") String userId,
 			@RequestHeader(value = "partnerId", defaultValue = "") String partnerId) {
 		checkUuid(userId);
 		return new BaseResponse<>(followService.isFollowed(userId, partnerId));
+	}
+
+	@GetMapping("list")
+	@Operation(summary = "유저 별 팔로우 목록 조회 API", description = "유저 별 팔로우 한 파트너 목록")
+	public BaseResponse<FollowListRespVo> getFollowList(
+			@RequestHeader(value = "UUID", defaultValue = "") String userId,
+			@PageableDefault(size = 3, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
+		checkUuid(userId);
+		return new BaseResponse<>(modelMapper.map(
+				followService.getFollowList(userId, page), FollowListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {

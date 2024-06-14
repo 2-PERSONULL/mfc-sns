@@ -1,5 +1,9 @@
 package com.mfc.sns.posting.infrastructure;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -9,6 +13,7 @@ import com.mfc.sns.posting.domain.Follow;
 
 public interface FollowRepository extends JpaRepository<Follow, Long> {
 	boolean existsByUserIdAndPartnerId(String userId, String partnerId);
+	Page<Follow> findByUserId(String userId, Pageable page);
 
 	@Modifying
 	@Query("DELETE FROM Follow f where f.userId = :userId and f.partnerId = :partnerId")
