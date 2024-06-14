@@ -1,5 +1,9 @@
 package com.mfc.sns.posting.presentation;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 @Tag(name = "bookmark", description = "좋아요 서비스 컨트롤러")
 public class BookmarkController {
 	private final BookmarkService bookmarkService;
+	private final ModelMapper modelMapper;
 
 	@PostMapping("/{postId}")
 	@Operation(summary = "포스팅 좋아요 등록 API", description = "포스팅 좋아요 등록")
@@ -46,4 +51,12 @@ public class BookmarkController {
 		return new BaseResponse<>(bookmarkService.isBookmarked(postId, userId));
 	}
 
+	@GetMapping("/list")
+	@Operation(summary = "유저 별 좋아요 목록 조회 API", description = "유저 별 좋아요 한 포스팅 목록")
+	public BaseResponse<PostListRespVo> getBookmarkList(
+			@RequestHeader(value = "UUID", defaultValue = "") String userId,
+			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
+		return new BaseResponse<>(modelMapper.map(
+				bookmarkService.getBookmarkList(userId, page), PostListRespVo.class));
+	}
 }

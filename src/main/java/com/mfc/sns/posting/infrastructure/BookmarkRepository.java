@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.mfc.sns.posting.domain.Bookmark;
 
-public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
+public interface BookmarkRepository extends JpaRepository<Bookmark, Long>, CustomRepository {
 	@Modifying
 	@Query("DELETE FROM Bookmark b where b.postId = :postId and b.userId = :userId")
 	void deleteByPostId(@Param("postId") Long postId, @Param("userId") String userId);
