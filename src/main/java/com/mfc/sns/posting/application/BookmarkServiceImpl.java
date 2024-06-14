@@ -1,11 +1,13 @@
 package com.mfc.sns.posting.application;
 
+import static com.mfc.sns.common.response.BaseResponseStatus.*;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Bookmark;
 import com.mfc.sns.posting.infrastructure.BookmarkRepository;
-import com.mfc.sns.posting.infrastructure.PostRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,6 +18,10 @@ public class BookmarkServiceImpl implements BookmarkService {
 	private final BookmarkRepository bookmarkRepository;
 	@Override
 	public void createBookmark(Long postId, String userId) {
+		if(bookmarkRepository.existsByPostIdAndUserId(postId, userId)) {
+			throw new BaseException(BOOKMARK_CONFLICT);
+		}
+
 		bookmarkRepository.save(Bookmark.builder()
 				.userId(userId)
 				.post(postId)

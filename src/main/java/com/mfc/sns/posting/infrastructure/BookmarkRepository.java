@@ -15,4 +15,6 @@ public interface BookmarkRepository extends JpaRepository<Bookmark, Long> {
 	void deleteByPostId(@Param("postId") Long postId, @Param("userId") String userId);
 
 	Optional<Bookmark> findByPostIdAndUserId(Long postId, String userId);
+
+	boolean existsByPostIdAndUserId(Long postId, String userId);
 }
