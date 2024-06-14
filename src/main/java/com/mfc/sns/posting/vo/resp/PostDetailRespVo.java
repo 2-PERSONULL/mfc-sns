@@ -10,6 +10,5 @@ public class PostDetailRespVo {
 	private Long postId;
 	private String imageUrl;
 	private String alt;
-	private int bookmarkCnt;
 	private List<TagVo> tags = new ArrayList<>();
 }

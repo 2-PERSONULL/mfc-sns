@@ -4,6 +4,8 @@ import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,7 +36,6 @@ public class PostServiceImpl implements PostService {
 				.imageUrl(dto.getImageUrl())
 				.partnerId(uuid)
 				.alt(uuid + "post")
-				.bookmarkCnt(0)
 				.build());
 
 		insertTags(dto.getTags(), post);
@@ -50,7 +51,6 @@ public class PostServiceImpl implements PostService {
 				.postId(postId)
 				.imageUrl(post.getImageUrl())
 				.alt(post.getAlt())
-				.bookmarkCnt(post.getBookmarkCnt())
 				.tags(tagRepository.findByPostId(postId)
 						.stream()
 						.map(TagDto::new)
@@ -60,12 +60,14 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PostListRespDto getPostList(String partnerId) {
+	public PostListRespDto getPostList(String partnerId, Pageable page) {
+		Page<Post> posts = postRepository.findByPartnerId(partnerId, page);
+
 		return PostListRespDto.builder()
-				.posts(postRepository.findByPartnerId(partnerId)
-						.stream()
+				.posts(posts.stream()
 						.map(PostDto::new)
 						.toList())
+				.isLast(posts.isLast())
 				.build();
 	}
 
@@ -85,11 +87,23 @@ public class PostServiceImpl implements PostService {
 				.id(postId)
 				.imageUrl(dto.getImageUrl())
 				.alt(post.getAlt())
-				.bookmarkCnt(post.getBookmarkCnt())
 				.build()
 		);
 
 		insertTags(dto.getTags(), post);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public PostListRespDto getExploreList(Pageable page) {
+		Page<Post> posts = postRepository.findAll(page);
+
+		return PostListRespDto.builder()
+				.posts(posts.stream()
+						.map(PostDto::new)
+						.toList())
+				.isLast(posts.isLast())
+				.build();
 	}
 
 	private void insertTags(List<String> tags, Post post) {
