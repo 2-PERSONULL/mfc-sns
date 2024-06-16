@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class PostDto {
 	private String partnerId;
 	private Long postId;

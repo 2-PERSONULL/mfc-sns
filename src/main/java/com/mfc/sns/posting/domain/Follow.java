@@ -2,6 +2,7 @@ package com.mfc.sns.posting.domain;
 
 import com.mfc.sns.common.entity.BaseEntity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,16 +14,18 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
-public class Bookmark extends BaseEntity {
+public class Follow extends BaseEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	@Column(nullable = false, length = 50)
 	private String userId;
-	private Long postId;
+	@Column(nullable = false, length = 50)
+	private String partnerId;
 
 	@Builder
-	public Bookmark(String userId, Long post) {
+	public Follow(String userId, String partnerId) {
 		this.userId = userId;
-		this.postId = post;
+		this.partnerId = partnerId;
 	}
 }
