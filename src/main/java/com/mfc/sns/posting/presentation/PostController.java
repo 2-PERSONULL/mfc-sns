@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.mfc.sns.common.exception.BaseException;
@@ -31,10 +32,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/posts")
+@Slf4j
 @Tag(name = "posts", description = "포스팅 서비스 컨트롤러")
 public class PostController {
 	private final PostService postService;
@@ -88,11 +91,12 @@ public class PostController {
 	}
 
 	@GetMapping("/explore")
-	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "탐색 탭 포스팅 목록 조회 (정렬 및 필터링 구현 아직 안함..)")
+	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "탐색 탭 포스팅 목록 조회")
 	public  BaseResponse<PostListRespVo> getExploreList(
-			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page) {
+			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page,
+			@RequestParam(required = false) Long styleId) {
 		return new BaseResponse<>(modelMapper.map(
-				postService.getExploreList(page), PostListRespVo.class));
+				postService.getExploreList(page, styleId), PostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {

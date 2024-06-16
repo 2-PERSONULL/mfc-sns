@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 import com.mfc.sns.posting.domain.Post;
 
-public interface PostRepository extends JpaRepository<Post, Long> {
+public interface PostRepository extends JpaRepository<Post, Long>, CustomRepository {
 	Page<Post> findByPartnerId(String partnerId, Pageable page);
 
 	Optional<Post> findByIdAndPartnerId(Long postId, String partnerId);

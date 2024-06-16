@@ -6,12 +6,15 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
+import com.mfc.sns.posting.dto.kafka.PartnerListDto;
+import com.mfc.sns.posting.dto.kafka.StyleCategoryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -22,13 +25,18 @@ import com.mfc.sns.posting.infrastructure.PostRepository;
 import com.mfc.sns.posting.infrastructure.TagRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final TagRepository tagRepository;
+
+	private final KafkaProducer producer;
+	private final KafkaConsumer consumer;
 
 	@Override
 	public void createPost(String uuid, UpdatePostReqDto dto) {
@@ -95,13 +103,18 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PostListRespDto getExploreList(Pageable page) {
-		Page<Post> posts = postRepository.findAll(page);
+	public PostListRespDto getExploreList(Pageable page, Long styleId) {
+		List<String> partners = null;
+		if(styleId != null){
+			log.info("send message");
+			producer.sendStyleId(StyleCategoryDto.builder().styleId(styleId).build());
+			partners = consumer.getPartners();
+		}
+
+		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
 
 		return PostListRespDto.builder()
-				.posts(posts.stream()
-						.map(PostDto::new)
-						.toList())
+				.posts(posts.stream().toList())
 				.isLast(posts.isLast())
 				.build();
 	}
@@ -112,5 +125,9 @@ public class PostServiceImpl implements PostService {
 						.value(tag)
 						.post(post)
 						.build()));
+	}
+
+	public List<String> getPartners(PartnerListDto dto) {
+		return dto.getPartners();
 	}
 }

@@ -46,7 +46,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 	@Override
 	@Transactional(readOnly = true)
 	public PostListRespDto getBookmarkList(String userId, Pageable page) {
-		Slice<PostDto> posts = bookmarkRepository.getPostList(userId, page);
+		Slice<PostDto> posts = bookmarkRepository.getBookmarkedPostList(userId, page);
 
 		return PostListRespDto.builder()
 				.posts(posts.getContent())
