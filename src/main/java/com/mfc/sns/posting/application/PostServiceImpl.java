@@ -10,11 +10,12 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mfc.sns.common.client.MemberClient;
+import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PartnerListDto;
-import com.mfc.sns.posting.dto.kafka.StyleCategoryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -35,8 +36,7 @@ public class PostServiceImpl implements PostService {
 	private final PostRepository postRepository;
 	private final TagRepository tagRepository;
 
-	private final KafkaProducer producer;
-	private final KafkaConsumer consumer;
+	private final MemberClient memberClient;
 
 	@Override
 	public void createPost(String uuid, UpdatePostReqDto dto) {
@@ -106,9 +106,8 @@ public class PostServiceImpl implements PostService {
 	public PostListRespDto getExploreList(Pageable page, Long styleId) {
 		List<String> partners = null;
 		if(styleId != null){
-			log.info("send message");
-			producer.sendStyleId(StyleCategoryDto.builder().styleId(styleId).build());
-			partners = consumer.getPartners();
+			PartnersByStyleResponse result = memberClient.getPartnersByStyle(styleId);
+			partners = result.getResult().getPartners();
 		}
 
 		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
