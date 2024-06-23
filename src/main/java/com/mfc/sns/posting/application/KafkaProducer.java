@@ -3,7 +3,7 @@ package com.mfc.sns.posting.application;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
-import com.mfc.sns.posting.dto.kafka.StyleCategoryDto;
+import com.mfc.sns.posting.dto.kafka.CreatePostDto;
 
 import lombok.RequiredArgsConstructor;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 public class KafkaProducer {
 	private final KafkaTemplate<String, Object> kafkaTemplate;
 
-	public void sendStyleId(StyleCategoryDto dto) {
-		kafkaTemplate.send("styleCategory", dto);
+	public void createPost(CreatePostDto dto) {
+		kafkaTemplate.send("create-post", dto);
 	}
 }

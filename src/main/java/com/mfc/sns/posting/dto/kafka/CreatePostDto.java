@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class StyleCategoryDto {
-	private Long styleId;
+public class CreatePostDto {
+	private Long postId;
 }

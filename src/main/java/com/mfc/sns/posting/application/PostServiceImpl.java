@@ -15,7 +15,7 @@ import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
-import com.mfc.sns.posting.dto.kafka.PartnerListDto;
+import com.mfc.sns.posting.dto.kafka.CreatePostDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -37,6 +37,7 @@ public class PostServiceImpl implements PostService {
 	private final TagRepository tagRepository;
 
 	private final MemberClient memberClient;
+	private final KafkaProducer producer;
 
 	@Override
 	public void createPost(String uuid, UpdatePostReqDto dto) {
@@ -47,6 +48,7 @@ public class PostServiceImpl implements PostService {
 				.build());
 
 		insertTags(dto.getTags(), post);
+		producer.createPost(CreatePostDto.builder().postId(post.getId()).build() );
 	}
 
 	@Override
@@ -124,9 +126,5 @@ public class PostServiceImpl implements PostService {
 						.value(tag)
 						.post(post)
 						.build()));
-	}
-
-	public List<String> getPartners(PartnerListDto dto) {
-		return dto.getPartners();
 	}
 }
