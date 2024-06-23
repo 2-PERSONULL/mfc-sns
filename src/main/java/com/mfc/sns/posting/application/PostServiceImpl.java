@@ -15,7 +15,7 @@ import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
-import com.mfc.sns.posting.dto.kafka.CreatePostDto;
+import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -48,7 +48,7 @@ public class PostServiceImpl implements PostService {
 				.build());
 
 		insertTags(dto.getTags(), post);
-		producer.createPost(CreatePostDto.builder().postId(post.getId()).build() );
+		producer.createPost(PostSummaryDto.builder().postId(post.getId()).build());
 	}
 
 	@Override
