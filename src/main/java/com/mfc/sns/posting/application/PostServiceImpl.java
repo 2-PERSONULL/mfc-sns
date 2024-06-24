@@ -10,6 +10,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mfc.sns.common.client.BatchClient;
 import com.mfc.sns.common.client.MemberClient;
 import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
@@ -37,6 +38,7 @@ public class PostServiceImpl implements PostService {
 	private final TagRepository tagRepository;
 
 	private final MemberClient memberClient;
+	private final BatchClient batchClient;
 	private final KafkaProducer producer;
 
 	@Override
@@ -57,6 +59,8 @@ public class PostServiceImpl implements PostService {
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> new BaseException(POST_NOT_FOUND));
 
+		Integer bookmarkCnt = batchClient.getBookmarkCnt(postId).getResult().getBookmarkCnt();
+
 		return PostDetailRespDto.builder()
 				.postId(postId)
 				.imageUrl(post.getImageUrl())
@@ -65,6 +69,7 @@ public class PostServiceImpl implements PostService {
 						.stream()
 						.map(TagDto::new)
 						.toList())
+				.bookmarkCnt(bookmarkCnt)
 				.build();
 	}
 

@@ -13,5 +13,6 @@ public class PostDetailRespDto {
 	private Long postId;
 	private String imageUrl;
 	private String alt;
+	private Integer bookmarkCnt;
 	private List<TagDto> tags;
 }
