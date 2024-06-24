@@ -15,6 +15,9 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 	boolean existsByUserIdAndPartnerId(String userId, String partnerId);
 	Page<Follow> findByUserId(String userId, Pageable page);
 
+	@Query("SELECT f.partnerId FROM Follow f WHERE f.userId = :userId")
+	List<String> findPartnersByUserId(@Param("userId") String userId);
+
 	@Modifying
 	@Query("DELETE FROM Follow f where f.userId = :userId and f.partnerId = :partnerId")
 	void deleteByUserIdAndPartnerId(@Param("userId") String userId, @Param("partnerId") String partnerId);

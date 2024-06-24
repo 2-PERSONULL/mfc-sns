@@ -25,6 +25,7 @@ import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.vo.req.DeletePostReqVo;
 import com.mfc.sns.posting.vo.req.UpdatePostReqVo;
+import com.mfc.sns.posting.vo.resp.FollowedPostListRespVo;
 import com.mfc.sns.posting.vo.resp.PostDetailRespVo;
 import com.mfc.sns.posting.vo.resp.PostListRespVo;
 
@@ -97,6 +98,15 @@ public class PostController {
 			@RequestParam(required = false) Long styleId) {
 		return new BaseResponse<>(modelMapper.map(
 				postService.getExploreList(page, styleId), PostListRespVo.class));
+	}
+
+	@GetMapping("/followed")
+	@Operation(summary = "팔로우 한 파트너 포스팅 조회 API", description = "최신순 12개 조회")
+	public BaseResponse<FollowedPostListRespVo> getFollowedPostList(
+			@RequestHeader(value = "UUID", defaultValue = "") String userId) {
+		checkUuid(userId);
+		return new BaseResponse<>(modelMapper.map(
+				postService.getFollowedPostList(userId), FollowedPostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {
