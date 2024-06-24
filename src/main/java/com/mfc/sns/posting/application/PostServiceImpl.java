@@ -2,7 +2,10 @@ package com.mfc.sns.posting.application;
 
 import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -13,14 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.sns.common.client.BatchClient;
 import com.mfc.sns.common.client.MemberClient;
+import com.mfc.sns.common.client.PartnerProfilesResponse;
 import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
-import com.mfc.sns.posting.domain.Follow;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
-import com.mfc.sns.posting.dto.req.ProfileReqDto;
+import com.mfc.sns.posting.dto.req.PartnerProfilesReqDto;
+import com.mfc.sns.posting.dto.req.ProfileDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.FollowedPostListRespDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -31,7 +35,6 @@ import com.mfc.sns.posting.dto.resp.TagDto;
 import com.mfc.sns.posting.infrastructure.FollowRepository;
 import com.mfc.sns.posting.infrastructure.PostRepository;
 import com.mfc.sns.posting.infrastructure.TagRepository;
-import com.mfc.sns.posting.vo.resp.FollowedPostListRespVo;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -135,21 +138,38 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	public FollowedPostListRespDto getFollowedPostList(String userId) {
+		// 1 : 팔로우 한 파트너 ID 목록 조회
 		List<String> partners = followRepository.findPartnersByUserId(userId);
 
+		// 2 : 포스팅 12개 조회
 		Pageable pageable = PageRequest.of(0, 12);
 		List<Post> posts = postRepository.findByPartners(partners, pageable);
 
+		List<String> partnerIds = posts.stream()
+				.map(Post::getPartnerId).distinct().toList();
+
+		// 3 : 포스팅에 해당하는 파트너 프로필 조회
+		Map<String, ProfileDto> profiles = memberClient.getPartnerProfiles(partnerIds).getResult().getProfiles()
+				.stream()
+				.collect(Collectors.toMap(ProfileDto::getPartnerId, dto -> dto));
+
+		List<Long> postIds = posts.stream().map(Post::getId).toList();
+
+		// 4 : 포스팅 id에 해당하는 태그 조회
+		Map<Long, List<TagDto>> postTags = tagRepository.findByPostIds(postIds).stream()
+				.collect(Collectors.groupingBy(
+						tag -> tag.getPost().getId(),
+						Collectors.mapping(TagDto::new, Collectors.toList())
+				));
+
 		List<PostWithPartnerDto> list = posts.stream()
 				.map(post -> {
-					ProfileReqDto profile = memberClient.getPartnerProfile(post.getPartnerId()).getResult();
+					ProfileDto profile = profiles.get(post.getPartnerId());
+					List<TagDto> tags = postTags.getOrDefault(post.getId(), Collections.emptyList());
 
 					return PostWithPartnerDto.builder()
 							.postId(post.getId())
-							.tags(tagRepository.findByPostId(post.getId())
-									.stream()
-									.map(TagDto::new)
-									.toList())
+							.tags(tags)
 							.partnerId(post.getPartnerId())
 							.profileImage(profile.getProfileImage())
 							.profileAlt(profile.getImageAlt())
