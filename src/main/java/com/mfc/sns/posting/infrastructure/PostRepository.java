@@ -17,6 +17,9 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomReposit
 
 	Optional<Post> findByIdAndPartnerId(Long postId, String partnerId);
 
+	@Query("SELECT p FROM Post p WHERE p.partnerId IN :partners ORDER BY p.createdAt DESC")
+	List<Post> findByPartners(@Param("partners") List<String> partners, Pageable page);
+
 	@Modifying(clearAutomatically = true)
 	@Query("delete from Post p where p.id in :posts")
 	void deletePosts(@Param("posts") List<Long> posts);
