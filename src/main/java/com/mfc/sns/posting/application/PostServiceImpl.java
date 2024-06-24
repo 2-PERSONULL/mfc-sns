@@ -10,12 +10,13 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.mfc.sns.common.client.BatchClient;
 import com.mfc.sns.common.client.MemberClient;
 import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
-import com.mfc.sns.posting.dto.kafka.PartnerListDto;
+import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
@@ -37,6 +38,8 @@ public class PostServiceImpl implements PostService {
 	private final TagRepository tagRepository;
 
 	private final MemberClient memberClient;
+	private final BatchClient batchClient;
+	private final KafkaProducer producer;
 
 	@Override
 	public void createPost(String uuid, UpdatePostReqDto dto) {
@@ -47,6 +50,7 @@ public class PostServiceImpl implements PostService {
 				.build());
 
 		insertTags(dto.getTags(), post);
+		producer.createPost(PostSummaryDto.builder().postId(post.getId()).build());
 	}
 
 	@Override
@@ -54,6 +58,8 @@ public class PostServiceImpl implements PostService {
 	public PostDetailRespDto getPostDetail(Long postId) {
 		Post post = postRepository.findById(postId)
 				.orElseThrow(() -> new BaseException(POST_NOT_FOUND));
+
+		Integer bookmarkCnt = batchClient.getBookmarkCnt(postId).getResult().getBookmarkCnt();
 
 		return PostDetailRespDto.builder()
 				.postId(postId)
@@ -63,6 +69,7 @@ public class PostServiceImpl implements PostService {
 						.stream()
 						.map(TagDto::new)
 						.toList())
+				.bookmarkCnt(bookmarkCnt)
 				.build();
 	}
 
@@ -124,9 +131,5 @@ public class PostServiceImpl implements PostService {
 						.value(tag)
 						.post(post)
 						.build()));
-	}
-
-	public List<String> getPartners(PartnerListDto dto) {
-		return dto.getPartners();
 	}
 }
