@@ -15,4 +15,7 @@ public interface MemberClient {
 
 	@GetMapping("/partners/profiles")
 	PartnerProfilesResponse getPartnerProfiles(@RequestParam List<String> partnerIds);
+
+	@GetMapping("/partners/styles/{userId}")
+	PartnersByStyleResponse getPartnersByStyles(@PathVariable String userId);
 }

@@ -16,17 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.mfc.sns.common.client.BatchClient;
 import com.mfc.sns.common.client.MemberClient;
-import com.mfc.sns.common.client.PartnerProfilesResponse;
 import com.mfc.sns.common.client.PartnersByStyleResponse;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
-import com.mfc.sns.posting.dto.req.PartnerProfilesReqDto;
 import com.mfc.sns.posting.dto.req.ProfileDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
-import com.mfc.sns.posting.dto.resp.FollowedPostListRespDto;
+import com.mfc.sns.posting.dto.resp.HomePostListRespDto;
 import com.mfc.sns.posting.dto.resp.PostDetailRespDto;
 import com.mfc.sns.posting.dto.resp.PostDto;
 import com.mfc.sns.posting.dto.resp.PostListRespDto;
@@ -137,7 +135,7 @@ public class PostServiceImpl implements PostService {
 	}
 
 	@Override
-	public FollowedPostListRespDto getFollowedPostList(String userId) {
+	public HomePostListRespDto getFollowedPostList(String userId) {
 		// 1 : 팔로우 한 파트너 ID 목록 조회
 		List<String> partners = followRepository.findPartnersByUserId(userId);
 
@@ -145,24 +143,65 @@ public class PostServiceImpl implements PostService {
 		Pageable pageable = PageRequest.of(0, 12);
 		List<Post> posts = postRepository.findByPartners(partners, pageable);
 
-		List<String> partnerIds = posts.stream()
-				.map(Post::getPartnerId).distinct().toList();
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
 
-		// 3 : 포스팅에 해당하는 파트너 프로필 조회
-		Map<String, ProfileDto> profiles = memberClient.getPartnerProfiles(partnerIds).getResult().getProfiles()
+	@Override
+	public HomePostListRespDto getStylePostList(String userId) {
+		// 1 + 2 : 유저의 선호 스타일에 해당하는 파트너 ID 목록 조회
+		List<String> partners = memberClient.getPartnersByStyles(userId).getResult().getPartners();
+
+		// 3 : 포스팅 10개 랜덤 조회
+		List<Post> posts = postRepository.findRandomByPartners(partners);
+
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
+
+	private void insertTags(List<String> tags, Post post) {
+		tags
+				.forEach(tag -> tagRepository.save(Tag.builder()
+						.value(tag)
+						.post(post)
+						.build()));
+	}
+
+	private List<String> extractPartnerIds(List<Post> posts) {
+		return posts.stream()
+				.map(Post::getPartnerId)
+				.distinct().toList();
+	}
+
+	private List<Long> extractPostIds(List<Post> posts) {
+		return posts.stream()
+				.map(Post::getId).toList();
+	}
+
+	private Map<String, ProfileDto> getProfiles(List<String> partnerIds) {
+		return memberClient.getPartnerProfiles(partnerIds).getResult().getProfiles()
 				.stream()
 				.collect(Collectors.toMap(ProfileDto::getPartnerId, dto -> dto));
+	}
 
-		List<Long> postIds = posts.stream().map(Post::getId).toList();
-
-		// 4 : 포스팅 id에 해당하는 태그 조회
-		Map<Long, List<TagDto>> postTags = tagRepository.findByPostIds(postIds).stream()
+	private Map<Long, List<TagDto>> getTags(List<Long> postIds) {
+		return tagRepository.findByPostIds(postIds).stream()
 				.collect(Collectors.groupingBy(
 						tag -> tag.getPost().getId(),
 						Collectors.mapping(TagDto::new, Collectors.toList())
 				));
+	}
 
-		List<PostWithPartnerDto> list = posts.stream()
+	private List<PostWithPartnerDto> getList(List<Post> posts) {
+		List<String> partnerIds = extractPartnerIds(posts);
+		List<Long> postIds = extractPostIds(posts);
+
+		Map<String, ProfileDto> profiles = getProfiles(partnerIds);
+		Map<Long, List<TagDto>> postTags = getTags(postIds);
+
+		return posts.stream()
 				.map(post -> {
 					ProfileDto profile = profiles.get(post.getPartnerId());
 					List<TagDto> tags = postTags.getOrDefault(post.getId(), Collections.emptyList());
@@ -178,17 +217,5 @@ public class PostServiceImpl implements PostService {
 							.nickname(profile.getNickname())
 							.build();
 				}).toList();
-
-		return FollowedPostListRespDto.builder()
-				.posts(list)
-				.build();
-	}
-
-	private void insertTags(List<String> tags, Post post) {
-		tags
-				.forEach(tag -> tagRepository.save(Tag.builder()
-						.value(tag)
-						.post(post)
-						.build()));
 	}
 }
