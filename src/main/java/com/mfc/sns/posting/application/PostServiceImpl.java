@@ -59,7 +59,11 @@ public class PostServiceImpl implements PostService {
 				.build());
 
 		insertTags(dto.getTags(), post);
-		producer.createPost(PostSummaryDto.builder().postId(post.getId()).build());
+
+		producer.createPost(PostSummaryDto.builder()
+				.postId(post.getId())
+				.partnerId(post.getPartnerId())
+				.build());
 	}
 
 	@Override
@@ -98,7 +102,16 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public void deletePosts(String uuid, DeletePostReqDto dto) {
 		tagRepository.deleteTags(dto.getPosts());
-		postRepository.deletePosts(dto.getPosts());
+		Integer cnt = postRepository.deletePosts(dto.getPosts());
+
+		if(cnt > 0) {
+			Long postId = dto.getPosts().get(0);
+			producer.deletePost(PostSummaryDto.builder()
+					.postId(postId)
+					.partnerId(uuid)
+					.build());
+		}
+
 	}
 
 	@Override

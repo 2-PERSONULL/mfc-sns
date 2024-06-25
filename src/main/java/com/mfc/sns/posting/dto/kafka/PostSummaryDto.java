@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 public class PostSummaryDto {
 	private Long postId;
+	private String partnerId;
 }
