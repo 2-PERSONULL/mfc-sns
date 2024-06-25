@@ -7,6 +7,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class FollowedPostListRespDto {
+public class HomePostListRespDto {
 	private List<PostWithPartnerDto> posts;
 }

@@ -25,13 +25,12 @@ import com.mfc.sns.posting.dto.req.DeletePostReqDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.vo.req.DeletePostReqVo;
 import com.mfc.sns.posting.vo.req.UpdatePostReqVo;
-import com.mfc.sns.posting.vo.resp.FollowedPostListRespVo;
+import com.mfc.sns.posting.vo.resp.HomePostListRespVo;
 import com.mfc.sns.posting.vo.resp.PostDetailRespVo;
 import com.mfc.sns.posting.vo.resp.PostListRespVo;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.ws.rs.Path;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -102,11 +101,20 @@ public class PostController {
 
 	@GetMapping("/followed")
 	@Operation(summary = "팔로우 한 파트너 포스팅 조회 API", description = "최신순 12개 조회")
-	public BaseResponse<FollowedPostListRespVo> getFollowedPostList(
+	public BaseResponse<HomePostListRespVo> getFollowedPostList(
 			@RequestHeader(value = "UUID", defaultValue = "") String userId) {
 		checkUuid(userId);
 		return new BaseResponse<>(modelMapper.map(
-				postService.getFollowedPostList(userId), FollowedPostListRespVo.class));
+				postService.getFollowedPostList(userId), HomePostListRespVo.class));
+	}
+
+	@GetMapping("/styles")
+	@Operation(summary = "선호 스타일 파트너 포스팅 조회 API", description = "랜덤 10개 조회")
+	public BaseResponse<HomePostListRespVo> getStylePostList(
+			@RequestHeader(value = "UUID", defaultValue = "") String userId) {
+		checkUuid(userId);
+		return new BaseResponse<>(modelMapper.map(
+				postService.getStylePostList(userId), HomePostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {
