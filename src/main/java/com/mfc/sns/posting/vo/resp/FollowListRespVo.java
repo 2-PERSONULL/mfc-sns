@@ -6,6 +6,6 @@ import lombok.Getter;
 
 @Getter
 public class FollowListRespVo {
-	private List<String> partners;
+	private List<ProfileVo> partners;
 	private boolean isLast;
 }
