@@ -28,4 +28,12 @@ public class KafkaProducer {
 	public void deleteBookmark(PostSummaryDto dto) {
 		kafkaTemplate.send("delete-bookmark", dto);
 	}
+
+	public void createFollow(PartnerSummaryDto dto) {
+		kafkaTemplate.send("create-follow", dto);
+	}
+
+	public void deleteFollow(PartnerSummaryDto dto) {
+		kafkaTemplate.send("delete-follow", dto);
+	}
 }

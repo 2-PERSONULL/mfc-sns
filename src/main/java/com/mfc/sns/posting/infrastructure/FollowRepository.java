@@ -20,5 +20,5 @@ public interface FollowRepository extends JpaRepository<Follow, Long> {
 
 	@Modifying
 	@Query("DELETE FROM Follow f where f.userId = :userId and f.partnerId = :partnerId")
-	void deleteByUserIdAndPartnerId(@Param("userId") String userId, @Param("partnerId") String partnerId);
+	Integer deleteByUserIdAndPartnerId(@Param("userId") String userId, @Param("partnerId") String partnerId);
 }
