@@ -5,7 +5,6 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class PostSummaryDto {
-	private Long postId;
+public class PartnerSummaryDto {
 	private String partnerId;
 }

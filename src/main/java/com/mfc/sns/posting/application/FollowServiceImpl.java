@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.mfc.sns.common.exception.BaseException;
 import com.mfc.sns.common.response.BaseResponseStatus;
 import com.mfc.sns.posting.domain.Follow;
+import com.mfc.sns.posting.dto.kafka.PartnerSummaryDto;
 import com.mfc.sns.posting.dto.req.FollowReqDto;
 import com.mfc.sns.posting.dto.resp.FollowListRespDto;
 import com.mfc.sns.posting.infrastructure.FollowRepository;
@@ -21,6 +22,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class FollowServiceImpl implements FollowService {
 	private final FollowRepository followRepository;
+	private final KafkaProducer producer;
 
 	@Override
 	public void createFollow(String userId, FollowReqDto dto) {
@@ -33,11 +35,21 @@ public class FollowServiceImpl implements FollowService {
 				.partnerId(dto.getPartnerId())
 				.build()
 		);
+
+		producer.createFollow(PartnerSummaryDto.builder()
+				.partnerId(dto.getPartnerId())
+				.build());
 	}
 
 	@Override
 	public void deleteFollow(String userId, FollowReqDto dto) {
-		followRepository.deleteByUserIdAndPartnerId(userId, dto.getPartnerId());
+		Integer cnt = followRepository.deleteByUserIdAndPartnerId(userId, dto.getPartnerId());
+
+		if(cnt > 0) {
+			producer.deleteFollow(PartnerSummaryDto.builder()
+					.partnerId(dto.getPartnerId())
+					.build());
+		}
 	}
 
 	@Override

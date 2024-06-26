@@ -3,6 +3,7 @@ package com.mfc.sns.posting.application;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.mfc.sns.posting.dto.kafka.PartnerSummaryDto;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 
 import lombok.RequiredArgsConstructor;
@@ -16,11 +17,23 @@ public class KafkaProducer {
 		kafkaTemplate.send("create-post", dto);
 	}
 
+	public void deletePost(PostSummaryDto dto) {
+		kafkaTemplate.send("delete-post", dto);
+	}
+
 	public void createBookmark(PostSummaryDto dto) {
 		kafkaTemplate.send("create-bookmark", dto);
 	}
 
 	public void deleteBookmark(PostSummaryDto dto) {
 		kafkaTemplate.send("delete-bookmark", dto);
+	}
+
+	public void createFollow(PartnerSummaryDto dto) {
+		kafkaTemplate.send("create-follow", dto);
+	}
+
+	public void deleteFollow(PartnerSummaryDto dto) {
+		kafkaTemplate.send("delete-follow", dto);
 	}
 }

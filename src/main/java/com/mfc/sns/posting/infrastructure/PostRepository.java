@@ -25,5 +25,5 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomReposit
 
 	@Modifying(clearAutomatically = true)
 	@Query("delete from Post p where p.id in :posts")
-	void deletePosts(@Param("posts") List<Long> posts);
+	Integer deletePosts(@Param("posts") List<Long> posts);
 }
