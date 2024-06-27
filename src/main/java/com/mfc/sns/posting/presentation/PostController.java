@@ -2,6 +2,8 @@ package com.mfc.sns.posting.presentation;
 
 import static com.mfc.sns.common.response.BaseResponseStatus.*;
 
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -91,9 +93,9 @@ public class PostController {
 	}
 
 	@GetMapping("/explore")
-	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "탐색 탭 포스팅 목록 조회")
+	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "sort=BOOKMARK : 좋아요 정렬")
 	public  BaseResponse<PostListRespVo> getExploreList(
-			@PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable page,
+			@PageableDefault(size = 5, direction = Sort.Direction.DESC) Pageable page,
 			@RequestParam(required = false) Long styleId) {
 		return new BaseResponse<>(modelMapper.map(
 				postService.getExploreList(page, styleId), PostListRespVo.class));

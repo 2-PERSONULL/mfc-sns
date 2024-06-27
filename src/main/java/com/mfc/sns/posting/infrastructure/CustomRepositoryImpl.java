@@ -9,9 +9,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
+import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.dto.resp.PostDto;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.core.types.dsl.CaseBuilder;
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 
 import lombok.RequiredArgsConstructor;
@@ -69,6 +74,26 @@ public class CustomRepositoryImpl implements CustomRepository {
 		}
 
 		return new SliceImpl<>(result, page, hasNext);
+	}
+
+	@Override
+	public List<Post> getPostOrderByBookmark(List<Long> postIds) {
+		if (postIds == null || postIds.isEmpty()) { // 해당하는 포스팅이 없으면 빈 리스트 반환
+			return List.of();
+		}
+
+		NumberExpression<Long> orderCases = Expressions.numberTemplate(Long.class, "0");
+
+		for (int i = 0; i < postIds.size(); i++) {
+			orderCases = new CaseBuilder()
+					.when(post.id.eq(postIds.get(i))).then((long) i)
+					.otherwise(orderCases);
+		}
+
+		return query.selectFrom(post)
+				.where(post.id.in(postIds))
+				.orderBy(orderCases.asc())
+				.fetch();
 	}
 
 	private BooleanExpression partnerIdIn(List<String> partners) {
