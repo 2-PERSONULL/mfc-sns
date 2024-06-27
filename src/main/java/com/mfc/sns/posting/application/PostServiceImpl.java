@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
+import com.mfc.sns.posting.dto.req.PostListReqDto;
 import com.mfc.sns.posting.dto.req.ProfileDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
 import com.mfc.sns.posting.dto.resp.HomePostListRespDto;
@@ -139,8 +141,20 @@ public class PostServiceImpl implements PostService {
 			partners = result.getResult().getPartners();
 		}
 
-		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
+		String sort = page.getSort().toString().split(":")[0];
+		if(sort.equals("BOOKMARK")) {
+			PostListReqDto result = batchClient.getPostList(page, partners).getResult();
+			List<Post> posts = postRepository.getPostOrderByBookmark(result.getPosts());
 
+			return PostListRespDto.builder()
+					.posts(posts.stream()
+							.map(PostDto::new)
+							.toList())
+					.isLast(result.getLast())
+					.build();
+		}
+
+		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
 		return PostListRespDto.builder()
 				.posts(posts.stream().toList())
 				.isLast(posts.isLast())
