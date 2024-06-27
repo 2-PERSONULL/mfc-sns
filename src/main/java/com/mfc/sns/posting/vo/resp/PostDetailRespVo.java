@@ -1,5 +1,6 @@
 package com.mfc.sns.posting.vo.resp;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,5 +12,6 @@ public class PostDetailRespVo {
 	private String imageUrl;
 	private String alt;
 	private Integer bookmarkCnt;
+	private LocalDateTime createdAt;
 	private List<TagVo> tags = new ArrayList<>();
 }

@@ -85,6 +85,7 @@ public class PostServiceImpl implements PostService {
 						.map(TagDto::new)
 						.toList())
 				.bookmarkCnt(bookmarkCnt)
+				.createdAt(post.getCreatedAt())
 				.build();
 	}
 
