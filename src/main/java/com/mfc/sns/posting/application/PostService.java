@@ -18,4 +18,5 @@ public interface PostService {
 	HomePostListRespDto getFollowedPostList(String userId);
 	HomePostListRespDto getStylePostList(String userId);
 	HomePostListRespDto getRandomPostList();
+	HomePostListRespDto getRankingPostList();
 }

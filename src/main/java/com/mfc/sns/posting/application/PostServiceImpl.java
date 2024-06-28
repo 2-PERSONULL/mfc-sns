@@ -23,6 +23,7 @@ import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
+import com.mfc.sns.posting.dto.req.PartnerSummaryReqDto;
 import com.mfc.sns.posting.dto.req.PostListReqDto;
 import com.mfc.sns.posting.dto.req.ProfileDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
@@ -192,6 +193,19 @@ public class PostServiceImpl implements PostService {
 	@Override
 	public HomePostListRespDto getRandomPostList() {
 		List<Post> posts = postRepository.findRandomPosts();
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
+
+	@Override
+	public HomePostListRespDto getRankingPostList() {
+		List<String> partnerIds = batchClient.getPartnerRanking().getResult()
+				.getPartners().stream()
+				.map(PartnerSummaryReqDto::getPartnerId)
+				.toList();
+
+		List<Post> posts = postRepository.findByRankingPartners(partnerIds);
 		return HomePostListRespDto.builder()
 				.posts(getList(posts))
 				.build();

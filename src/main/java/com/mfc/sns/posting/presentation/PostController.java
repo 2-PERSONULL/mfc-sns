@@ -120,10 +120,17 @@ public class PostController {
 	}
 
 	@GetMapping("/random")
-	@Operation(summary = "비회원 추천 스타일 포스팅 조회 API", description = "랜덤 10개 조회")
+	@Operation(summary = "전체 포스팅 랜덤 조회 API", description = "랜덤 10개 조회")
 	public BaseResponse<HomePostListRespVo> getRandomPostList() {
 		return new BaseResponse<>(modelMapper.map(
 				postService.getRandomPostList(), HomePostListRespVo.class));
+	}
+
+	@GetMapping("/ranking")
+	@Operation(summary = "인기 파트너 포스팅 조회 API", description = "랜덤 12개 조회")
+	public BaseResponse<HomePostListRespVo> getRankingPostList() {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getRankingPostList(), HomePostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {
