@@ -68,6 +68,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 				.where(partnerIdIn(partners), tagEq(search))
 				.offset(page.getOffset())
 				.limit(page.getPageSize() + 1)
+				.groupBy(post.id)
 				.orderBy(post.createdAt.desc())
 				.fetch();
 
@@ -99,6 +100,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 				.join(tag)
 				.on(post.id.eq(tag.post.id))
 				.orderBy(orderCases.asc())
+				.groupBy(post.id)
 				.fetch();
 	}
 
