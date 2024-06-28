@@ -96,9 +96,10 @@ public class PostController {
 	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "sort=BOOKMARK : 좋아요 정렬")
 	public  BaseResponse<PostListRespVo> getExploreList(
 			@PageableDefault(size = 5, direction = Sort.Direction.DESC) Pageable page,
-			@RequestParam(required = false) Long styleId) {
+			@RequestParam(required = false) Long styleId,
+			@RequestParam(required = false) String search) {
 		return new BaseResponse<>(modelMapper.map(
-				postService.getExploreList(page, styleId), PostListRespVo.class));
+				postService.getExploreList(page, styleId, search), PostListRespVo.class));
 	}
 
 	@GetMapping("/followed")

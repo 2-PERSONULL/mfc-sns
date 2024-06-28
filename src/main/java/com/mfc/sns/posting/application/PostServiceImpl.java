@@ -136,7 +136,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PostListRespDto getExploreList(Pageable page, Long styleId) {
+	public PostListRespDto getExploreList(Pageable page, Long styleId, String search) {
 		List<String> partners = null;
 		if(styleId != null){
 			PartnersByStyleResponse result = memberClient.getPartnersByStyle(styleId);
@@ -146,7 +146,7 @@ public class PostServiceImpl implements PostService {
 		String sort = page.getSort().toString().split(":")[0];
 		if(sort.equals("BOOKMARK")) {
 			PostListReqDto result = batchClient.getPostList(page, partners).getResult();
-			List<Post> posts = postRepository.getPostOrderByBookmark(result.getPosts());
+			List<Post> posts = postRepository.getPostOrderByBookmark(result.getPosts(), search);
 
 			return PostListRespDto.builder()
 					.posts(posts.stream()
@@ -156,7 +156,7 @@ public class PostServiceImpl implements PostService {
 					.build();
 		}
 
-		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
+		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page, search);
 		return PostListRespDto.builder()
 				.posts(posts.stream().toList())
 				.isLast(posts.isLast())
