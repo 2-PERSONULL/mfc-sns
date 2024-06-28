@@ -15,4 +15,7 @@ public interface BatchClient {
 
 	@GetMapping("/batch/explore")
 	PostListResponse getPostList(Pageable page, @RequestParam List<String> partners);
+
+	@GetMapping("/batch/ranking")
+	PartnerRankingResponse getPartnerRanking();
 }

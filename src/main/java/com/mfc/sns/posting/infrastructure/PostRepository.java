@@ -20,8 +20,14 @@ public interface PostRepository extends JpaRepository<Post, Long>, CustomReposit
 	@Query("SELECT p FROM Post p WHERE p.partnerId IN :partners ORDER BY p.createdAt DESC")
 	List<Post> findByPartners(@Param("partners") List<String> partners, Pageable page);
 
+	@Query(value = "SELECT * FROM post WHERE partner_id IN :partners ORDER BY RAND() LIMIT 12", nativeQuery = true)
+	List<Post> findByRankingPartners(@Param("partners") List<String> partners);
+
 	@Query(value = "SELECT * FROM post WHERE partner_id IN :partners ORDER BY RAND() LIMIT 10", nativeQuery = true)
 	List<Post> findRandomByPartners(@Param("partners") List<String> partners);
+
+	@Query(value = "SELECT * FROM post ORDER BY RAND() LIMIT 10", nativeQuery = true)
+	List<Post> findRandomPosts();
 
 	@Modifying(clearAutomatically = true)
 	@Query("delete from Post p where p.id in :posts")

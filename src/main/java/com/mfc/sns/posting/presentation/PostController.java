@@ -96,9 +96,10 @@ public class PostController {
 	@Operation(summary = "탐색 탭 포스팅 조회 API", description = "sort=BOOKMARK : 좋아요 정렬")
 	public  BaseResponse<PostListRespVo> getExploreList(
 			@PageableDefault(size = 5, direction = Sort.Direction.DESC) Pageable page,
-			@RequestParam(required = false) Long styleId) {
+			@RequestParam(required = false) Long styleId,
+			@RequestParam(required = false) String search) {
 		return new BaseResponse<>(modelMapper.map(
-				postService.getExploreList(page, styleId), PostListRespVo.class));
+				postService.getExploreList(page, styleId, search), PostListRespVo.class));
 	}
 
 	@GetMapping("/followed")
@@ -117,6 +118,20 @@ public class PostController {
 		checkUuid(userId);
 		return new BaseResponse<>(modelMapper.map(
 				postService.getStylePostList(userId), HomePostListRespVo.class));
+	}
+
+	@GetMapping("/random")
+	@Operation(summary = "전체 포스팅 랜덤 조회 API", description = "랜덤 10개 조회")
+	public BaseResponse<HomePostListRespVo> getRandomPostList() {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getRandomPostList(), HomePostListRespVo.class));
+	}
+
+	@GetMapping("/ranking")
+	@Operation(summary = "인기 파트너 포스팅 조회 API", description = "랜덤 12개 조회")
+	public BaseResponse<HomePostListRespVo> getRankingPostList() {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getRankingPostList(), HomePostListRespVo.class));
 	}
 
 	private void checkUuid(String uuid) {

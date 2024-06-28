@@ -23,6 +23,7 @@ import com.mfc.sns.posting.domain.Post;
 import com.mfc.sns.posting.domain.Tag;
 import com.mfc.sns.posting.dto.kafka.PostSummaryDto;
 import com.mfc.sns.posting.dto.req.DeletePostReqDto;
+import com.mfc.sns.posting.dto.req.PartnerSummaryReqDto;
 import com.mfc.sns.posting.dto.req.PostListReqDto;
 import com.mfc.sns.posting.dto.req.ProfileDto;
 import com.mfc.sns.posting.dto.req.UpdatePostReqDto;
@@ -135,7 +136,7 @@ public class PostServiceImpl implements PostService {
 
 	@Override
 	@Transactional(readOnly = true)
-	public PostListRespDto getExploreList(Pageable page, Long styleId) {
+	public PostListRespDto getExploreList(Pageable page, Long styleId, String search) {
 		List<String> partners = null;
 		if(styleId != null){
 			PartnersByStyleResponse result = memberClient.getPartnersByStyle(styleId);
@@ -145,7 +146,7 @@ public class PostServiceImpl implements PostService {
 		String sort = page.getSort().toString().split(":")[0];
 		if(sort.equals("BOOKMARK")) {
 			PostListReqDto result = batchClient.getPostList(page, partners).getResult();
-			List<Post> posts = postRepository.getPostOrderByBookmark(result.getPosts());
+			List<Post> posts = postRepository.getPostOrderByBookmark(result.getPosts(), search);
 
 			return PostListRespDto.builder()
 					.posts(posts.stream()
@@ -155,7 +156,7 @@ public class PostServiceImpl implements PostService {
 					.build();
 		}
 
-		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page);
+		Slice<PostDto> posts = postRepository.getExplorePostList(partners, page, search);
 		return PostListRespDto.builder()
 				.posts(posts.stream().toList())
 				.isLast(posts.isLast())
@@ -184,6 +185,27 @@ public class PostServiceImpl implements PostService {
 		// 3 : 포스팅 10개 랜덤 조회
 		List<Post> posts = postRepository.findRandomByPartners(partners);
 
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
+
+	@Override
+	public HomePostListRespDto getRandomPostList() {
+		List<Post> posts = postRepository.findRandomPosts();
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
+
+	@Override
+	public HomePostListRespDto getRankingPostList() {
+		List<String> partnerIds = batchClient.getPartnerRanking().getResult()
+				.getPartners().stream()
+				.map(PartnerSummaryReqDto::getPartnerId)
+				.toList();
+
+		List<Post> posts = postRepository.findByRankingPartners(partnerIds);
 		return HomePostListRespDto.builder()
 				.posts(getList(posts))
 				.build();

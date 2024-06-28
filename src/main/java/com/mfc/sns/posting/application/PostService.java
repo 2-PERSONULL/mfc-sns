@@ -14,7 +14,9 @@ public interface PostService {
 	PostListRespDto getPostList(String partnerId, Pageable page);
 	void deletePosts(String uuid, DeletePostReqDto dto);
 	void updatePost(Long postId, String partnerId, UpdatePostReqDto dto);
-	PostListRespDto getExploreList(Pageable page, Long styleId);
+	PostListRespDto getExploreList(Pageable page, Long styleId, String search);
 	HomePostListRespDto getFollowedPostList(String userId);
 	HomePostListRespDto getStylePostList(String userId);
+	HomePostListRespDto getRandomPostList();
+	HomePostListRespDto getRankingPostList();
 }

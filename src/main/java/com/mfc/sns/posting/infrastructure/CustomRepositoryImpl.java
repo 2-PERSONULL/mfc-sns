@@ -2,6 +2,7 @@ package com.mfc.sns.posting.infrastructure;
 
 import static com.mfc.sns.posting.domain.QBookmark.*;
 import static com.mfc.sns.posting.domain.QPost.*;
+import static com.mfc.sns.posting.domain.QTag.*;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.SliceImpl;
 
 import com.mfc.sns.posting.domain.Post;
+import com.mfc.sns.posting.domain.QTag;
 import com.mfc.sns.posting.dto.resp.PostDto;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
@@ -52,7 +54,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 	}
 
 	@Override
-	public Slice<PostDto> getExplorePostList(List<String> partners, Pageable page) {
+	public Slice<PostDto> getExplorePostList(List<String> partners, Pageable page, String search) {
 
 		List<PostDto> result = query
 				.select(Projections.constructor(PostDto.class,
@@ -61,7 +63,9 @@ public class CustomRepositoryImpl implements CustomRepository {
 						post.imageUrl.as("imageUrl"),
 						post.alt.as("alt")))
 				.from(post)
-				.where(partnerIdIn(partners))
+				.join(tag)
+				.on(post.id.eq(tag.post.id))
+				.where(partnerIdIn(partners), tagEq(search))
 				.offset(page.getOffset())
 				.limit(page.getPageSize() + 1)
 				.orderBy(post.createdAt.desc())
@@ -77,7 +81,7 @@ public class CustomRepositoryImpl implements CustomRepository {
 	}
 
 	@Override
-	public List<Post> getPostOrderByBookmark(List<Long> postIds) {
+	public List<Post> getPostOrderByBookmark(List<Long> postIds, String search) {
 		if (postIds == null || postIds.isEmpty()) { // 해당하는 포스팅이 없으면 빈 리스트 반환
 			return List.of();
 		}
@@ -91,12 +95,18 @@ public class CustomRepositoryImpl implements CustomRepository {
 		}
 
 		return query.selectFrom(post)
-				.where(post.id.in(postIds))
+				.where(post.id.in(postIds), tagEq(search))
+				.join(tag)
+				.on(post.id.eq(tag.post.id))
 				.orderBy(orderCases.asc())
 				.fetch();
 	}
 
 	private BooleanExpression partnerIdIn(List<String> partners) {
 		return partners != null ? post.partnerId.in(partners) : null;
+	}
+
+	private BooleanExpression tagEq(String search) {
+		return search != null ? tag.value.like("%" + search + "%") : null;
 	}
 }
