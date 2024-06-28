@@ -17,4 +17,5 @@ public interface PostService {
 	PostListRespDto getExploreList(Pageable page, Long styleId);
 	HomePostListRespDto getFollowedPostList(String userId);
 	HomePostListRespDto getStylePostList(String userId);
+	HomePostListRespDto getRandomPostList();
 }

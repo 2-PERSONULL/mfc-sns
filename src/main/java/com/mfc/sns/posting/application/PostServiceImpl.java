@@ -189,6 +189,14 @@ public class PostServiceImpl implements PostService {
 				.build();
 	}
 
+	@Override
+	public HomePostListRespDto getRandomPostList() {
+		List<Post> posts = postRepository.findRandomPosts();
+		return HomePostListRespDto.builder()
+				.posts(getList(posts))
+				.build();
+	}
+
 	private void insertTags(List<String> tags, Post post) {
 		tags
 				.forEach(tag -> tagRepository.save(Tag.builder()

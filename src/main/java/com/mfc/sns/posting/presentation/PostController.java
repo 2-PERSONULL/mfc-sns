@@ -119,6 +119,13 @@ public class PostController {
 				postService.getStylePostList(userId), HomePostListRespVo.class));
 	}
 
+	@GetMapping("/random")
+	@Operation(summary = "비회원 추천 스타일 포스팅 조회 API", description = "랜덤 10개 조회")
+	public BaseResponse<HomePostListRespVo> getRandomPostList() {
+		return new BaseResponse<>(modelMapper.map(
+				postService.getRandomPostList(), HomePostListRespVo.class));
+	}
+
 	private void checkUuid(String uuid) {
 		if(!StringUtils.hasText(uuid)) {
 			throw new BaseException(NO_REQUIRED_HEADER);
